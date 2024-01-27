@@ -15,7 +15,6 @@ foreach(TEST_NAME IN ITEMS string)
     target_link_libraries(
         test_${TEST_NAME}
         PRIVATE
-        fmt::fmt-header-only
         GTest::gtest
         GTest::gtest_main
         GTest::gmock
