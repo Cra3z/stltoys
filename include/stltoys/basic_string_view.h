@@ -391,7 +391,7 @@ namespace ccat {
 				else return std::strong_ordering::greater;
 			}
 			
-			friend auto operator<< (std::ostream& os, basic_string_view_like svl) ->std::ostream& {
+			friend auto operator<< (std::basic_ostream<CharT, std::char_traits<CharT>>& os, basic_string_view_like svl) ->std::basic_ostream<CharT, std::char_traits<CharT>>& {
 				for (size_type i{}; i < svl.size(); ++i) {
 					os << svl[i];
 				}

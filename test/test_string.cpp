@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <iostream>
 #include <stltoys/basic_string.h>
 
 class string_test : public testing::Test {};
@@ -56,6 +57,11 @@ TEST_F(string_test, assign) {
 TEST_F(string_test, sub_string) {
 	ccat::string str{"hello world"};
 	EXPECT_EQ(str.substr(3, 4), "lo w");
+}
+
+TEST_F(string_test, out_string) {
+	ccat::string str{"hello world"};
+	std::cout << str;
 }
 
 auto main(int argc, char* argv[]) ->int {

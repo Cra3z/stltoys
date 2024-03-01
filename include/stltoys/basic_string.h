@@ -869,7 +869,7 @@ namespace ccat {
 			return static_cast<view_type>(lhs) <=> static_cast<view_type>(rhs);
 		}
 		
-		friend auto operator<< (std::ostream& os, const basic_string& str) ->std::ostream& {
+		friend auto operator<< (std::basic_ostream<CharT, std::char_traits<CharT>>& os, const basic_string& str) ->std::basic_ostream<CharT, std::char_traits<CharT>>& {
 			return os << str.slice_;
 		}
 		
