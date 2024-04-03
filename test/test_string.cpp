@@ -37,7 +37,7 @@ TEST_F(string_test, resize_reserve_and_shrink_to_fit) {
 	str.resize(20, '-');
 	EXPECT_EQ(str, "+++++++++++++++-----");
 	EXPECT_EQ(str.size(), 20);
-	EXPECT_EQ(str.capacity(), 32);
+	EXPECT_EQ(str.capacity(), 22);
 	str.shrink_to_fit();
 	EXPECT_EQ(str.capacity(), 20);
 }

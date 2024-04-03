@@ -145,7 +145,7 @@ namespace ccat {
 		}
 		
 		CONSTEXPR auto push_back(value_type c) ->void {
-			if (size() == capacity()) reserve(calculate_next_capacity(size()));
+			if (size() == capacity()) reserve(size() + (size() >> 1));
 			*slice_.end_ = c;
 			++slice_.end_;
 			null_terminated();
@@ -166,7 +166,7 @@ namespace ccat {
 				return *this;
 			}
 			auto new_size = size() + count;
-			auto new_cap = calculate_next_capacity(new_size);
+			auto new_cap = std::max(size() + (size() >> 1), new_size);
 			auto new_space = allocate(new_cap);
 			traits_type::move(new_space, slice_.beg_, index);
 			traits_type::move(new_space + index + count, slice_.beg_ + index, size() - index);
@@ -189,7 +189,7 @@ namespace ccat {
 				return *this;
 			}
 			auto new_size = size() + count;
-			auto new_cap = calculate_next_capacity(new_size);
+			auto new_cap = std::max(size() + (size() >> 1), new_size);
 			auto new_space = allocate(new_cap);
 			traits_type::move(new_space, slice_.beg_, index);
 			traits_type::move(new_space + index + count, slice_.beg_ + index, size() - index);
@@ -839,7 +839,7 @@ namespace ccat {
 			}
 			else {
 				auto old_size = size();
-				auto new_cap = calculate_least_next_capacity(count);
+				auto new_cap = std::max(old_size + (old_size >> 1), count);
 				auto new_space = allocate(new_cap);
 				traits_type::move(new_space, slice_.beg_, old_size);
 				deallocate();
@@ -874,36 +874,9 @@ namespace ccat {
 		}
 		
 	private:
-		CONSTEVAL static auto log2_ceil(std::size_t n) noexcept ->std::size_t {
-			std::size_t k = 0;
-			while (n > (std::size_t{1} << k)) {
-				++k;
-			}
-			return k;
-		}
-		
-		CONSTEXPR static auto calculate_next_capacity(size_type current_size) noexcept ->size_type {
-			size_type next_capacity_ = current_size;
-			for (size_type i = 0; i < log2_ceil_size_type_bit; ++i) {
-				next_capacity_ |= next_capacity_ >> (size_type{1} << i);
-			}
-			if constexpr (std::is_unsigned_v<size_type>) {
-				return next_capacity_ == static_cast<size_type>(-1) ? next_capacity_ : next_capacity_ + 1;
-			}
-			else {
-				return next_capacity_ > (size_type{1} << (size_type_bit - 1)) ? next_capacity_ : next_capacity_ + 1;
-			}
-		}
-		
-		CONSTEXPR static auto calculate_least_next_capacity(size_type least) noexcept ->size_type {
-			return least <= 1 ? 1 : calculate_next_capacity(least - 1);
-		}
-		
+
 	public:
 		static constexpr size_type npos = slice_type::npos;
-	private:
-		static constexpr std::size_t size_type_bit = sizeof(size_type) * CHAR_BIT;
-		static constexpr std::size_t log2_ceil_size_type_bit = log2_ceil(size_type_bit);
 	private:
 		using base::null_char;
 		using base::alloc_;
