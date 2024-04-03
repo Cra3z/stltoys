@@ -1,21 +1,25 @@
 #pragma once
-#include "iterator"
+#include "detail/util.h"
+#include "detail/iterator.h"
 
 namespace ccat {
 
 	namespace detail {
 		template<typename T, std::size_t N>
 		struct raw_array {
-			T data_[N];
 			CONSTEXPR auto address() noexcept ->T* {
 				return data_;
 			}
+
 			CONSTEXPR auto address() const noexcept ->const T* {
 				return data_;
 			}
+
 			CONSTEXPR auto swap(raw_array& other) noexcept ->void {
 				std::ranges::swap(data_, other.data_);
 			}
+
+			T data_[N];
 		};
 		
 		template<typename T>
@@ -23,6 +27,7 @@ namespace ccat {
 			CONSTEXPR auto address() const noexcept ->T* {
 				return nullptr;
 			}
+
 			CONSTEXPR auto swap(raw_array&) noexcept ->void {}
 		};
 		

@@ -1,7 +1,6 @@
 #pragma once
 #include <cstring>
 #include <ios>
-#include "common.h"
 
 namespace ccat {
 	

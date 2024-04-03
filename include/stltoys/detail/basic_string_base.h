@@ -1,6 +1,6 @@
 #pragma once
-#include "basic_string_view.h"
-#include "array.h"
+#include "../basic_string_view.h"
+#include "../array.h"
 
 #define SET_CCAT_BASIC_STRING_SSO_SIZE__(CharT) template<> constexpr std::size_t basic_string_sso_size<CharT> = CCAT_sso_size_of_basic_string_##CharT;
 

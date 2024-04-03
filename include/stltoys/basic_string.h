@@ -1,6 +1,6 @@
 #pragma once
-#include "basic_string_base.h"
 #include <initializer_list>
+#include "detail/basic_string_base.h"
 
 namespace ccat {
 	template<typename CharT, typename Traits, typename Alloc>

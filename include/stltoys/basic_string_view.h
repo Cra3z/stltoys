@@ -1,5 +1,5 @@
 #pragma once
-#include "iterator.h"
+#include "detail/iterator.h"
 #include "char_traits.h"
 
 namespace ccat {

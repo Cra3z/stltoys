@@ -1,7 +1,7 @@
 #pragma once
 #include <iterator>
 #include <ranges>
-#include "common.h"
+#include "config.h"
 
 namespace ccat::detail {
 	template<bool Mutable, typename T>
@@ -80,7 +80,7 @@ namespace ccat::detail {
 			return ptr_ - other.ptr_;
 		}
 		
-		NODISCARD CONSTEXPR auto operator[](difference_type n) const noexcept -> reference {
+		NODISCARD CONSTEXPR auto operator[] (difference_type n) const noexcept -> reference {
 			return ptr_[n];
 		}
 		
