@@ -1,9 +1,6 @@
 #pragma once
 #include <concepts>
 #include <type_traits>
-#include <memory>
-
-#include "concepts.h"
 
 namespace ccat::concepts {
 	template<typename T>

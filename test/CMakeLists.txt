@@ -2,8 +2,12 @@ add_executable(
     test_string
     test_string.cpp
 )
+add_executable(
+    test_vector
+    test_vector.cpp
+)
 
-foreach(TEST_NAME IN ITEMS string)
+foreach(TEST_NAME IN ITEMS string vector)
     gtest_discover_tests(test_${TEST_NAME})
 
     target_include_directories(

@@ -293,6 +293,7 @@ namespace ccat {
 			auto last_ = beg_ + (last - cbegin());
 			std::move(last_, end_, first_);
 			detail::alloc_destroy(end_ - distance_, end_, alloc_);
+			end_ -= distance_;
 			return begin() + idx;
 		}
 
@@ -306,10 +307,11 @@ namespace ccat {
 				this->emplace_back(std::forward<Args>(args)...);
 				return end_ - 1;
 			}
+			auto idx = (pos - cbegin());
 			if (size() == capacity()) this->realloc_(std::max(size() + 1, capacity() + (capacity() >> 1)));
-			auto where_ = beg_ + (pos - cbegin());
+			auto where_ = beg_ + idx;
 			value_type tmp(std::forward<Args>(args)...);
-			std::allocator_traits<allocator_type>::construct(alloc_, end_ + 1, std::move(back()));
+			std::allocator_traits<allocator_type>::construct(alloc_, end_, std::move(back()));
 			std::move_backward(where_, end_ - 1, end_);
 			*where_ = std::move(tmp);
 			++end_;
@@ -322,18 +324,18 @@ namespace ccat {
 				this->realloc_and_emplace_back_(std::max(size() + 1, capacity() + (capacity() >> 1)), std::forward<Args>(args)...);
 			}
 			else {
-				std::allocator_traits<allocator_type>::construct(alloc_, end_ + 1, std::forward<Args>(args)...);
+				std::allocator_traits<allocator_type>::construct(alloc_, end_, std::forward<Args>(args)...);
 				++end_;
 			}
 			return back();
 		}
 
 		CONSTEXPR auto push_back(const value_type& value) ->void requires concepts::copy_insertable_into<value_type, vector> {
-			return this->emplace_back(value);
+			this->emplace_back(value);
 		}
 
 		CONSTEXPR auto push_back(value_type&& value) ->void requires concepts::move_insertable_into<value_type, vector> {
-			return this->emplace_back(std::move(value));
+			this->emplace_back(std::move(value));
 		}
 
 		CONSTEXPR auto insert(const_iterator pos, const_reference value) ->iterator requires concepts::copy_assignable<value_type> && concepts::copy_insertable_into<value_type, vector> {
@@ -349,10 +351,11 @@ namespace ccat {
 				this->push_back_n_(count, value);
 				return end_ - count;
 			}
+			auto idx = pos - cbegin();
 			if (size() + count > capacity()) this->realloc_(std::max(size() + count, capacity() + (capacity() >> 1)));
-			auto where_ = beg_ + (pos - cbegin());
+			auto where_ = beg_ + idx;
 			detail::alloc_uninitialized_move(end_ - count, end_, end_, alloc_);
-			std::move_backward(where_, end_ - count, where_ + count);
+			std::move_backward(where_, end_ - count, end_);
 			std::fill_n(where_, count, value);
 			end_ += count;
 			return where_;
@@ -400,7 +403,7 @@ namespace ccat {
 			lhs.swap(rhs);
 		}
 
-		CONSTEXPR friend auto operator== (vector& lhs, vector& rhs) noexcept ->bool {
+		CONSTEXPR friend auto operator== (const vector& lhs, const vector& rhs) noexcept ->bool {
 			if (lhs.size() != rhs.size()) return false;
 			for (size_type i = 0; i < lhs.size(); ++i) {
 				if (lhs[i] != rhs[i]) return false;
@@ -408,7 +411,7 @@ namespace ccat {
 			return true;
 		}
 
-		CONSTEXPR friend auto operator<=> (vector& lhs, vector& rhs) noexcept {
+		CONSTEXPR friend auto operator<=> (const vector& lhs, const vector& rhs) noexcept {
 			return std::lexicographical_compare_three_way(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 		}
 	private:
@@ -461,12 +464,11 @@ namespace ccat {
 
 		template<typename InputIt>
 		CONSTEXPR auto append_range_impl_(InputIt first, InputIt last) ->iterator {
-			auto where_ = end_;
+			auto old_size_ = size();
 			for (auto it = first; it != last; ++it) {
 				this->push_back(*it);
-				++where_;
 			}
-			return where_;
+			return beg_ + old_size_;
 		}
 
 		CONSTEXPR auto push_back_n_(size_type count, const_reference value) ->void {
@@ -493,8 +495,7 @@ namespace ccat {
 
 			auto size_ = size();
 
-			clear();
-			std::allocator_traits<allocator_type>::deallocate(alloc_, beg_, capacity());
+			die_();
 
 			beg_ = new_storage;
 			end_ = beg_ + size_;
