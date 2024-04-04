@@ -108,21 +108,21 @@ namespace ccat {
 			NODISCARD CONSTEXPR auto cend() const noexcept ->const_iterator {
 				return end_;
 			}
-			
+
 			NODISCARD CONSTEXPR auto rbegin() const noexcept ->reverse_iterator {
-				return std::make_reverse_iterator(std::ranges::prev(end_));
+				return std::make_reverse_iterator(end());
 			}
 			
 			NODISCARD CONSTEXPR auto rend() const noexcept ->reverse_iterator {
-				return std::make_reverse_iterator(std::ranges::prev(beg_));
+				return std::make_reverse_iterator(begin());
 			}
 			
 			NODISCARD CONSTEXPR auto crbegin() const noexcept ->const_reverse_iterator {
-				return std::make_reverse_iterator(std::ranges::prev(end_));
+				return std::make_reverse_iterator(cend());
 			}
 			
 			NODISCARD CONSTEXPR auto crend() const noexcept ->const_reverse_iterator {
-				return std::make_reverse_iterator(std::ranges::prev(beg_));
+				return std::make_reverse_iterator(cbegin());
 			}
 			
 			NODISCARD CONSTEXPR auto data() const noexcept ->iter_pointer_type_ {
@@ -150,7 +150,7 @@ namespace ccat {
 			}
 			
 			NODISCARD CONSTEXPR auto at(size_type pos) const ->iter_reference_type_ {
-				if (pos >= size()) throw std::out_of_range{"in function `ccat::basic_string_view_like::at`: the parameter `pos` is out of range"};
+				if (pos >= size()) throw std::out_of_range{"in `ccat::basic_string_view_like::at`: the parameter `pos` is out of range"};
 				return beg_[pos];
 			}
 			
@@ -176,14 +176,14 @@ namespace ccat {
 			}
 			
 			CONSTEXPR auto copy(value_type* dest, size_type count, size_type pos = 0) const ->size_type {
-				if (pos > size()) throw std::out_of_range{"in function `ccat::basic_string_view_like::copy`: the parameter `pos` is out of range"};
+				if (pos > size()) throw std::out_of_range{"in `ccat::basic_string_view_like::copy`: the parameter `pos` is out of range"};
 				count = std::min(count, size() - pos);
 				traits_type::copy(dest, beg_ + pos, count);
 				return count;
 			}
 			
 			NODISCARD CONSTEXPR auto substr(size_type pos = 0, size_type count = npos) const ->basic_string_view_like {
-				if (pos > size()) throw std::out_of_range{"in function `ccat::basic_string_view_like::substr`: the parameter `pos` is out of range"};
+				if (pos > size()) throw std::out_of_range{"in `ccat::basic_string_view_like::substr`: the parameter `pos` is out of range"};
 				return basic_string_view_like{beg_ + pos, std::min(count, size() - pos)};
 			}
 			

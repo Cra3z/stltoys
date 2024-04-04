@@ -2,6 +2,8 @@
 #include <iostream>
 #include <stltoys/basic_string.h>
 
+static_assert(std::ranges::range<ccat::string>);
+
 class string_test : public testing::Test {};
 
 TEST_F(string_test, constructor) {
@@ -62,6 +64,17 @@ TEST_F(string_test, sub_string) {
 TEST_F(string_test, out_string) {
 	ccat::string str{"hello world"};
 	std::cout << str;
+}
+
+TEST_F(string_test, reverse_iteration) {
+	ccat::string str{"hello world"};
+	for (auto it = str.rbegin(); it != str.rend(); ++it) {
+		std::cout << *it << ' ';
+	}
+
+	for (auto it = str.crbegin(); it != str.crend(); ++it) {
+		std::cout << *it << ' ';
+	}
 }
 
 auto main(int argc, char* argv[]) ->int {
