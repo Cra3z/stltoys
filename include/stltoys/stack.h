@@ -1,11 +1,8 @@
 #pragma once
 #include "deque.h"
-#include "vector"
-#include "list.h"
-#include "vector.h"
 
 namespace ccat {
-	template<typename T, typename Container = ccat::vector<T>>
+	template<typename T, typename Container>
 	class stack {
 	public:
 		using container_type = Container;
@@ -141,4 +138,4 @@ namespace ccat {
 }
 
 template<typename T, typename Container, typename Alloc>
-struct uses_allocator<ccat::stack<T, Container>, Alloc> : std::uses_allocator<Container, Alloc>::type {};
+struct std::uses_allocator<ccat::stack<T, Container>, Alloc> : std::uses_allocator<Container, Alloc>::type {};
