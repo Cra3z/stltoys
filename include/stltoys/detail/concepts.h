@@ -1,6 +1,7 @@
 #pragma once
 #include <concepts>
 #include <type_traits>
+#include <ranges>
 
 namespace ccat::concepts {
 	template<typename T>
@@ -75,4 +76,8 @@ namespace ccat::concepts {
 
 	template<typename T, typename Alloc>
 	concept erasable = detail::alloc_erasable<T, Alloc> || std::destructible<T>;
+
+	template<typename Range, typename T>
+	concept container_compatible_range = std::ranges::input_range<Range> && std::convertible_to<std::ranges::range_value_t<Range>, T>;
+
 }
