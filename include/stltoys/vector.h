@@ -126,7 +126,7 @@ namespace ccat {
 		template<std::ranges::input_range Range>
 		CONSTEXPR auto assign_range(Range&& rng) ->void requires
 			std::assignable_from<T&, std::ranges::range_reference_t<Range>> &&
-			concepts::emplace_constructible_from<value_type, vector, decltype(*std::ranges::begin(rng))> &&
+			concepts::emplace_constructible_from<value_type, vector, std::ranges::range_reference_t<Range>> &&
 			(std::ranges::sized_range<Range> || std::ranges::forward_range<Range> ? true : concepts::move_insertable_into<value_type, vector>)
 		{
 			auto ptr = beg_;
@@ -380,12 +380,12 @@ namespace ccat {
 		}
 
 		template<std::ranges::input_range Range>
-		CONSTEXPR auto insert_range(const_iterator pos, Range&& rng) ->iterator requires concepts::emplace_constructible_from<value_type, vector, decltype(*std::ranges::begin(rng))> && std::movable<value_type> && concepts::move_insertable_into<value_type, vector> {
+		CONSTEXPR auto insert_range(const_iterator pos, Range&& rng) ->iterator requires concepts::emplace_constructible_from<value_type, vector, std::ranges::range_reference_t<Range>> && std::movable<value_type> && concepts::move_insertable_into<value_type, vector> {
 			return this->insert(pos, std::ranges::begin(rng), std::ranges::end(rng));
 		}
 
 		template<std::ranges::input_range Range>
-		CONSTEXPR auto append_range(Range&& rng) ->void requires concepts::emplace_constructible_from<value_type, vector, decltype(*std::ranges::begin(rng))> && concepts::move_insertable_into<value_type, vector> {
+		CONSTEXPR auto append_range(Range&& rng) ->void requires concepts::emplace_constructible_from<value_type, vector, std::ranges::range_reference_t<Range>> && concepts::move_insertable_into<value_type, vector> {
 			(void) this->append_range_impl_(std::ranges::begin(rng), std::ranges::end(rng));
 		}
 
