@@ -12,7 +12,10 @@ if (DEFINED STLTOYS_TEST)
     add_subdirectory(test)
 endif()
 
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME} INTERFACE
+    include/stltoys/list.h
+    include/stltoys/deque.h
+)
 
 target_include_directories(
     ${PROJECT_NAME}

@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <utility>
+#include <memory>
 
 namespace ccat {
 

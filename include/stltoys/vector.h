@@ -20,8 +20,8 @@ namespace ccat {
 		using const_pointer = typename std::allocator_traits<allocator_type>::const_pointer;
 		using reference = value_type&;
 		using const_reference = const value_type&;
-		using iterator = detail::generic_contiguous_iterator<true, value_type>;
-		using const_iterator = detail::generic_contiguous_iterator<false, value_type>;
+		using iterator = detail::contiguous_iterator<true, value_type>;
+		using const_iterator = detail::contiguous_iterator<false, value_type>;
 		using reverse_iterator = std::reverse_iterator<iterator>;
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 	public: // ctor and dtor

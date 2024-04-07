@@ -35,8 +35,8 @@ namespace ccat {
 			using const_reference = const value_type&;
 			using size_type = std::size_t;
 			using difference_type = std::ptrdiff_t;
-			using iterator = detail::generic_contiguous_iterator<Mutable, value_type>;
-			using const_iterator = detail::generic_contiguous_iterator<false, value_type>;
+			using iterator = detail::contiguous_iterator<Mutable, value_type>;
+			using const_iterator = detail::contiguous_iterator<false, value_type>;
 			using reverse_iterator = std::reverse_iterator<iterator>;
 			using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 		private:
