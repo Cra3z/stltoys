@@ -389,17 +389,16 @@ namespace ccat {
 			(void) this->append_range_impl_(std::ranges::begin(rng), std::ranges::end(rng));
 		}
 
-		CONSTEXPR auto swap(vector& other) noexcept(
-			std::allocator_traits<allocator_type>::propagate_on_container_swap::value ||
-			std::allocator_traits<allocator_type>::is_always_equal::value
-		) ->void {
+		CONSTEXPR auto swap(vector& other) noexcept ->void { // undefined if propagate_on_container_swap::value is false and this->alloc_ not equal to other.alloc_
+			if constexpr (std::allocator_traits<allocator_type>::propagate_on_container_swap::value) {
+				std::ranges::swap(alloc_, other.alloc_);
+			}
 			std::ranges::swap(beg_, other.beg_);
 			std::ranges::swap(end_, other.end_);
 			std::ranges::swap(cap_, other.cap_);
-			std::ranges::swap(alloc_, other.alloc_);
 		}
 
-		CONSTEXPR friend auto swap(vector& lhs, vector& rhs) noexcept(noexcept(lhs.swap(rhs))) ->void {
+		CONSTEXPR friend auto swap(vector& lhs, vector& rhs) noexcept ->void {
 			lhs.swap(rhs);
 		}
 
