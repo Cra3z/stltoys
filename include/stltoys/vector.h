@@ -43,7 +43,9 @@ namespace ccat {
 			this->insert(cend(), first, last);
 		}
 
-		CONSTEXPR vector(const vector& other) : alloc_(other.alloc_) {
+		CONSTEXPR vector(const vector& other) :
+			alloc_(std::allocator_traits<allocator_type>::select_on_container_copy_construction(other.get_allocator()))
+		{
 			this->append_range(other);
 		}
 
@@ -53,7 +55,16 @@ namespace ccat {
 
 		CONSTEXPR vector(vector&& other) noexcept : beg_(std::exchange(other.beg_, {})), end_(std::exchange(other.end_, {})), cap_(std::exchange(other.cap_, {})), alloc_(std::move(other.alloc_)) {}
 
-		CONSTEXPR vector(vector&& other, const allocator_type& alloc) : beg_(std::exchange(other.beg_, {})), end_(std::exchange(other.end_, {})), cap_(std::exchange(other.cap_, {})), alloc_(alloc) {}
+		CONSTEXPR vector(vector&& other, const allocator_type& alloc) : alloc_(alloc) {
+			if (alloc != other.get_allocator()) {
+				this->append_range(std::ranges::subrange{std::make_move_iterator(other.begin()), std::make_move_iterator(other.end())});
+			}
+			else {
+				beg_ = std::exchange(other.beg_, {});
+				end_ = std::exchange(other.end_, {});
+				cap_ = std::exchange(other.cap_, {});
+			}
+		}
 
 		CONSTEXPR vector(std::initializer_list<value_type> ilist, const allocator_type& alloc = allocator_type()) : alloc_(alloc) {
 			this->insert(cend(), ilist);
