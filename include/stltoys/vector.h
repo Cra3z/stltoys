@@ -443,10 +443,8 @@ namespace ccat {
 				++ptr;
 				++rng_it;
 			}
-			while (ptr != end_) {
-				std::allocator_traits<allocator_type>::destroy(alloc_, ptr);
-				++ptr;
-			}
+			detail::alloc_destroy(ptr, end_, alloc_);
+			end_ = ptr;
 			while (rng_it != rng_end) {
 				this->push_back(*rng_it);
 				++rng_it;
@@ -462,10 +460,8 @@ namespace ccat {
 				++ptr;
 				++rng_it;
 			}
-			while (ptr != end_) {
-				std::allocator_traits<allocator_type>::destroy(alloc_, ptr);
-				++ptr;
-			}
+			detail::alloc_destroy(ptr, end_, alloc_);
+			end_ = ptr;
 			while (rng_it != rng_end) {
 				this->push_back(std::move(*rng_it));
 				++rng_it;
