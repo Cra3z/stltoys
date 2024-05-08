@@ -86,7 +86,7 @@ namespace ccat {
 				if (alloc_ != other.alloc_) die_();
 				alloc_ = other.alloc_;
 			}
-			this->elem_copy_assign_from_(other);
+			this->assign_range(other);
 			return *this;
 		}
 
@@ -148,10 +148,8 @@ namespace ccat {
 				++ptr;
 				++rng_it;
 			}
-			while (ptr != end_) {
-				std::allocator_traits<allocator_type>::destroy(alloc_, ptr);
-				++ptr;
-			}
+			detail::alloc_destroy(ptr, end_, alloc_);
+			end_ = ptr;
 			while (rng_it != rng_end) {
 				this->push_back(*rng_it);
 				++rng_it;
@@ -432,23 +430,6 @@ namespace ccat {
 			beg_ = nullptr;
 			end_ = nullptr;
 			cap_ = nullptr;
-		}
-
-		CONSTEXPR auto elem_copy_assign_from_(const vector& other) ->void {
-			auto ptr = beg_;
-			auto rng_it = other.beg_;
-			auto rng_end = other.end_;
-			while (ptr != end_ && rng_it != rng_end) {
-				*ptr = *rng_it;
-				++ptr;
-				++rng_it;
-			}
-			detail::alloc_destroy(ptr, end_, alloc_);
-			end_ = ptr;
-			while (rng_it != rng_end) {
-				this->push_back(*rng_it);
-				++rng_it;
-			}
 		}
 
 		CONSTEXPR auto elem_move_assign_from_(vector& other) ->void {
