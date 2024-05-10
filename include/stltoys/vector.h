@@ -120,20 +120,17 @@ namespace ccat {
 		}
 
 		CONSTEXPR auto operator= (std::initializer_list<value_type> ilist) ->vector& {
-			vector tmp(ilist);
-			this->swap(tmp);
+			vector(ilist).swap(*this);
 			return *this;
 		}
 
 		CONSTEXPR auto assign(size_type count, const_reference value) ->void {
-			vector tmp(count, value);
-			*this = tmp;
+			vector(count, value).swap(*this);
 		}
 
 		template<std::input_iterator InputIt>
 		CONSTEXPR auto assign(InputIt first, InputIt last) ->void {
-			vector tmp(first, last);
-			*this = tmp;
+			vector(first, last).swap(*this);
 		}
 
 		CONSTEXPR auto assign(std::initializer_list<value_type> ilist) ->void {
