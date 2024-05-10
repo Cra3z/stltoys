@@ -83,8 +83,14 @@ namespace ccat {
 		CONSTEXPR auto operator= (const vector& other) ->vector& {
 			if (this == std::addressof(other)) [[unlikely]] return *this;
 			if constexpr (std::allocator_traits<allocator_type>::propagate_on_container_copy_assignment::value) {
-				if (alloc_ != other.alloc_) die_();
-				alloc_ = other.alloc_;
+				auto old_alloc_ = std::exchange(alloc_, other.alloc_);
+				if (alloc_ != old_alloc_) {
+					detail::alloc_destroy(beg_, end_, old_alloc_);
+					std::allocator_traits<allocator_type>::deallocate(old_alloc_, beg_, capacity());
+					beg_ = nullptr;
+					end_ = nullptr;
+					cap_ = nullptr;
+				}
 			}
 			this->assign_range(other);
 			return *this;
@@ -100,7 +106,7 @@ namespace ccat {
 				cap_ = std::exchange(other.cap_, {});
 			}
 			else {
-				if (std::allocator_traits<allocator_type>::is_always_equal::value || alloc_ == other.alloc_) {
+				if (alloc_ == other.alloc_) {
 					die_();
 					beg_ = std::exchange(other.beg_, {});
 					end_ = std::exchange(other.end_, {});
