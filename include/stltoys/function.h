@@ -4,6 +4,179 @@
 #include <utility>
 
 namespace ccat {
+
+	template<typename T>
+    class function;
+
+    template<typename R, typename... Args>
+    class function<R(Args...)> {
+        using pointer = void*;
+        using on_destroy = void(*)(pointer);
+        using on_copy = pointer(*)(pointer);
+        using on_invoke = R(*)(pointer, Args...);
+    public:
+        using result_type = R;
+    public:
+        function() = default;
+
+        function(std::nullptr_t) noexcept : function() {}
+
+        function(const function& other) : ptr(other ? other.on_copy_(other.ptr) : nullptr), on_destroy_(other.on_destroy_), on_copy_(other.on_copy_), on_invoke_(other.on_invoke_), target_type_(other.target_type_) {}
+
+        function(function&& other) noexcept : ptr(std::exchange(other.ptr, {})), on_destroy_(std::exchange(other.on_destroy_), {}), on_copy_(std::exchange(other.on_copy_, {})), on_invoke_(std::exchange(other.on_invoke_, {})), target_type_(std::exchange(other.target_type_, typeid(void))) {}
+
+        template<typename Fn> requires (!std::same_as<std::remove_cvref_t<Fn>, function>) && std::is_invocable_r_v<R, Fn, Args...> && std::copy_constructible<std::decay_t<Fn>>
+        function(Fn&& fn) :
+            ptr(new auto(std::forward<Fn>(fn))),
+            on_destroy_(+[](void* ping) ->void {
+                auto pong = static_cast<std::decay_t<Fn>*>(ping);
+                delete pong;
+            }),
+            on_copy_(+[](void* ping) ->pointer {
+                auto pong = static_cast<std::decay_t<Fn>*>(ping);
+                return new auto(*pong);
+            }),
+            on_invoke_(+[](void* ping, Args... args) ->R {
+                auto pong = static_cast<std::decay_t<Fn>*>(ping);
+                return std::invoke(*pong, std::forward<Args>(args)...);
+            }),
+            target_type_(typeid(fn)) {}
+
+        ~function() {
+            if (on_destroy_) on_destroy_(ptr);
+        }
+
+        auto operator= (std::nullptr_t) noexcept ->function& {
+            function(nullptr).swap(*this);
+            return *this;
+        }
+
+        auto operator= (const function& other) ->function& {
+            function(other).swap(*this);
+            return *this;
+        }
+
+        auto operator= (function&& other) noexcept ->function& {
+            function(std::move(other)).swap(*this);
+            return *this;
+        }
+
+        template<typename Fn> requires (!std::same_as<std::remove_cvref_t<Fn>, function>) && std::is_invocable_r_v<R, Fn, Args...> && std::copy_constructible<std::decay_t<Fn>>
+        auto operator= (Fn&& fn) ->function& {
+            function(std::forward<Fn>(fn)).swap(*this);
+            return *this;
+        }
+
+        template<typename Fn>
+        auto operator= (std::reference_wrapper<Fn> fn) noexcept ->function& {
+            function(fn).swap(*this);
+            return *this;
+        }
+
+        auto operator() (Args... args) const ->R {
+            if (on_invoke_ == nullptr) throw std::bad_function_call{};
+            return on_invoke_(ptr, std::forward<Args>(args)...);
+        }
+
+        [[nodiscard]]
+        explicit operator bool() const noexcept {
+            return bool(ptr);
+        }
+
+        auto swap(function& other) noexcept ->void {
+            std::ranges::swap(ptr, other.ptr);
+            std::ranges::swap(on_destroy_, other.on_destroy_);
+            std::ranges::swap(on_copy_, other.on_copy_);
+            std::ranges::swap(on_invoke_, other.on_invoke_);
+            std::ranges::swap(target_type_, other.target_type_);
+        }
+
+        friend auto swap(function& lhs, function& rhs) noexcept ->void {
+            lhs.swap(rhs);
+        }
+
+        auto target_type() const noexcept ->const std::type_info& {
+            return target_type_;
+        }
+
+        template<typename T>
+        auto target() noexcept ->T* {
+            return target_type() == typeid(T) ? static_cast<T*>(ptr) : nullptr;
+        }
+
+        template<typename T>
+        auto target() const noexcept ->const T* {
+            return target_type() == typeid(T) ? static_cast<const T*>(ptr) : nullptr;
+        }
+
+        friend auto operator== (const function& f, std::nullptr_t) noexcept ->bool {
+            return bool(f);
+        }
+
+    private:
+        pointer                                      ptr          = nullptr;
+        on_destroy                                   on_destroy_  = nullptr;
+        on_copy                                      on_copy_     = nullptr;
+        on_invoke                                    on_invoke_   = nullptr;
+        std::reference_wrapper<const std::type_info> target_type_ = typeid(void);
+    };
+
+    namespace detail {
+
+        template<typename T>
+        struct remove_member_function_cv_ref_noexcept_helper_;
+
+        template<typename R, typename... Args, bool Nothrow>
+        struct remove_member_function_cv_ref_noexcept_helper_<R(Args...) noexcept(Nothrow)> {
+            using type = R(Args...);
+        };
+
+        template<typename R, typename... Args, bool Nothrow>
+        struct remove_member_function_cv_ref_noexcept_helper_<R(Args...) const noexcept(Nothrow)> {
+            using type = R(Args...);
+        };
+
+        template<typename R, typename... Args, bool Nothrow>
+        struct remove_member_function_cv_ref_noexcept_helper_<R(Args...) const& noexcept(Nothrow)> {
+            using type = R(Args...);
+        };
+
+        template<typename R, typename... Args, bool Nothrow>
+        struct remove_member_function_cv_ref_noexcept_helper_<R(Args...) volatile noexcept(Nothrow)> {
+            using type = R(Args...);
+        };
+
+        template<typename R, typename... Args, bool Nothrow>
+        struct remove_member_function_cv_ref_noexcept_helper_<R(Args...) volatile& noexcept(Nothrow)> {
+            using type = R(Args...);
+        };
+
+        template<typename R, typename... Args, bool Nothrow>
+        struct remove_member_function_cv_ref_noexcept_helper_<R(Args...) const volatile noexcept(Nothrow)> {
+            using type = R(Args...);
+        };
+
+        template<typename R, typename... Args, bool Nothrow>
+        struct remove_member_function_cv_ref_noexcept_helper_<R(Args...) const volatile& noexcept(Nothrow)> {
+            using type = R(Args...);
+        };
+
+        template<typename T>
+        struct operator_invoke_type_helper_;
+
+        template<typename FunctionType, typename Cls>
+        struct operator_invoke_type_helper_<FunctionType Cls::*> : remove_member_function_cv_ref_noexcept_helper_<FunctionType> {};
+
+        template<typename T>
+        using operator_invoke_type_ = typename operator_invoke_type_helper_<T>::type;
+    }
+
+    template<typename R, typename... Args>
+    function(R(*)(Args...)) -> function<R(Args...)>;
+
+    template<typename Fn>
+    function(Fn fn) -> function<detail::operator_invoke_type_<decltype(&Fn::operator())>>;
+
     namespace detail {
         template<class R, class F, class... Args> requires std::is_invocable_r_v<R, F, Args...>
         constexpr auto invoke_r(F&& f, Args&&... args) noexcept(std::is_nothrow_invocable_r_v<R, F, Args...>) ->R {
