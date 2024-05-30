@@ -4,7 +4,7 @@ project(stltoys)
 
 set(CMAKE_CXX_STANDARD 20)
 
-if (DEFINED STLTOYS_TEST)
+if (DEFINED STLTOYS_TEST AND STLTOYS_TEST)
     enable_testing()
 
     find_package(GTest REQUIRED)
