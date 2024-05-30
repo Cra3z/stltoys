@@ -23,7 +23,7 @@ namespace ccat {
 
         function(const function& other) : ptr(other ? other.on_copy_(other.ptr) : nullptr), on_destroy_(other.on_destroy_), on_copy_(other.on_copy_), on_invoke_(other.on_invoke_), target_type_(other.target_type_) {}
 
-        function(function&& other) noexcept : ptr(std::exchange(other.ptr, {})), on_destroy_(std::exchange(other.on_destroy_), {}), on_copy_(std::exchange(other.on_copy_, {})), on_invoke_(std::exchange(other.on_invoke_, {})), target_type_(std::exchange(other.target_type_, typeid(void))) {}
+        function(function&& other) noexcept : ptr(std::exchange(other.ptr, {})), on_destroy_(std::exchange(other.on_destroy_, {})), on_copy_(std::exchange(other.on_copy_, {})), on_invoke_(std::exchange(other.on_invoke_, {})), target_type_(std::exchange(other.target_type_, typeid(void))) {}
 
         template<typename Fn> requires (!std::same_as<std::remove_cvref_t<Fn>, function>) && std::is_invocable_r_v<R, Fn, Args...> && std::copy_constructible<std::decay_t<Fn>>
         function(Fn&& fn) :
