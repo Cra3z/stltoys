@@ -379,10 +379,9 @@ namespace ccat {
 				return this->append_range_impl_(first, last);
 			}
 			auto idx = pos - cbegin();
-			if (pos == cbegin()) return begin() + idx;
 			auto cur = pos;
 			for (auto it = first; it != last; ++it) {
-				cur = this->emplace(cur, *it);
+				cur = std::ranges::next(this->emplace(cur, *it));
 			}
 			return begin() + idx;
 		}

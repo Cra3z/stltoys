@@ -30,6 +30,10 @@ TEST_F(test_vector, insert) {
 	int i = 514;
 	vec.push_back(i);
 	EXPECT_EQ(vec, (ccat::vector{1, 6, 6, 6, 0, 2, 3, 7, 8, 9, 114, 514}));
+
+	ccat::vector vec2{1, 2, 3};
+	vec2.insert(vec2.begin(), {4, 5, 56, 3, 3, 3, 56, 456, 567, 5, 4, 4, 4, 2, 3, 6});
+	EXPECT_EQ(vec2, (ccat::vector{4, 5, 56, 3, 3, 3, 56, 456, 567, 5, 4, 4, 4, 2, 3, 6, 1, 2, 3}));
 }
 
 TEST_F(test_vector, erase) {
